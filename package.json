@@ -1,0 +1,28 @@
+{
+  "name": "express-sync-state",
+  "version": "0.1.0",
+  "description": "Sync any JSON-encodeable object from your server to all clients.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F1nnM/express-sync-state.git"
+  },
+  "keywords": [
+    "express",
+    "sync",
+    "json"
+  ],
+  "author": "F1nnM",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/F1nnM/express-sync-state/issues"
+  },
+  "homepage": "https://github.com/F1nnM/express-sync-state#readme",
+  "dependencies": {
+    "async-mutex": "^0.3.2",
+    "fast-json-patch": "^3.1.0"
+  }
+}
