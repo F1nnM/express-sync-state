@@ -44,25 +44,16 @@ A simple website just displaying the state variable.
 <html lang="en">
 <head>
     <!--
-        Get the fast-json-patch library from here:
-        https://github.com/Starcounter-Jack/JSON-Patch/blob/master/dist/fast-json-patch.min.js
+        Download the client.js from this repository:
+        https://github.com/F1nnM/express-sync-state/blob/main/client.js
     -->
-    <script src="fast-json-patch.min.js"></script>
+    <script src="client.js"></script>
 </head>
 <body>
     <pre id="pre"></pre>
     <script>
-        const source = new EventSource("/state")
-
-        var data = null
-
-        source.addEventListener('message', (e) => {
-            if (data == null)
-                data = JSON.parse(e.data)
-            else
-                data = jsonpatch.applyOperation(data, JSON.parse(e.data)).newDocument
-
-            document.querySelector("#pre").innerHTML = JSON.stringify(data)
+        SyncedClient("/state", (object) => {
+            document.querySelector("#pre").innerHTML = JSON.stringify(object)
         })
     </script>
 </body>
