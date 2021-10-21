@@ -1,6 +1,6 @@
 {
   "name": "express-sync-state",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Sync any JSON-encodeable object from your server to all clients.",
   "main": "index.js",
   "scripts": {

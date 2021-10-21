@@ -2,14 +2,30 @@
 Sync any JSON-encodeable object from your server to all clients
 
 ## Installation
+### Server
 ```
 $ npm install express-sync-state
 ```
 
 ```JavaScript
-const SyncedServer = require('express-sync-state');
+const { SyncedServer } = require('express-sync-state');
 ```
 
+### Client
+#### Plain HTML
+Download the file [`client.js`](https://github.com/F1nnM/express-sync-state/blob/main/client.js) and include it in your site:
+
+```HTML
+<script src="client.js"></script>
+```
+#### Node
+```
+$ npm install express-sync-state
+```
+
+```JavaScript
+const { SyncedCLient } = require('express-sync-state');
+```
 ## API
 ### `SyncedServer(object, [refreshInterval])`
  * `object` : A JSON-encodeable object to sync with any client
@@ -23,7 +39,7 @@ var express = require('express');
 
 var app = express();
 
-const SyncedServer = require('express-sync-state');
+const { SyncedServer } = require('express-sync-state');
 
 const state = {rand: ["","",""]}
 

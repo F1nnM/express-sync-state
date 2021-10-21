@@ -61,4 +61,19 @@ function SyncedServer(data, refreshInterval = 500) {
   }
 }
 
-module.exports = SyncedServer
+function SyncedClient(url, onUpdate) {
+  const source = new EventSource(url)
+
+  var data = null
+
+  source.addEventListener('message', (e) => {
+    if (data == null)
+      data = JSON.parse(e.data)
+    else
+      data = jsonpatch.applyOperation(data, JSON.parse(e.data)).newDocument
+
+    onUpdate(data)
+  })
+}
+
+module.exports = { SyncedServer, SyncedClient }
