@@ -2,7 +2,7 @@ const jsonpatch = require('fast-json-patch')
 
 var Mutex = require('async-mutex').Mutex
 
-function server() {
+function SyncedServer(data, refreshInterval = 500) {
 
   // List of clients to broadcast to
   // Mutex to avoid editing the list, while it's being read.
@@ -22,67 +22,43 @@ function server() {
     })
   }
 
-  // data object created here, to make it harder to modify outside the mutex lock.
+  // data is cloned here to have an immutable object, that can be broadcast, before a new set of patches is generated
   // mutex to avoid missing updates, if something changes between sending the client the object and registering for updates
 
-  const data = {}
+  var oldData = jsonpatch.deepClone(data)
+  var newData = null
   const dataMutex = new Mutex()
 
-  jsonpatch.observe(data, (patches) => {
-    for (const patch of patches) {
-      let toWrite = `data: ${JSON.stringify(patch)}n\n`
-      clientsMutex.runExclusive(() => {
-        for (const client of clients)
-          if (!res.writableEnded)
-            client.res.write(toWrite)
-      })
-    }
-  });
-
-  const safeBroadcastUpdates = function (updatingLambda) {
-    dataMutex.runExclusive(() => updatingLambda(data))
-  }
-
-  return {
-    handler: function (req, res) {
-      res.header('Cache-Control', 'no-cache')
-      res.set('Content-Type', 'text/event-stream')
-
-      dataMutex.runExclusive(() => {
-        res.send(`data: ${JSON.stringify(data)}n\n`)
-        registerClient(res)
-      })
-
-      res.socket.on('end', function () {
-        unregisterClient(res)
-      })
-
-    },
-    safeBroadcastUpdates
-  }
-}
-
-function client(serverURL, onUpdate) {
-  const source = new EventSource(serverURL)
-
-  var data = null
-  const dataMutex = new Mutex()
-
-  source.addEventListener('message', (e) => {
+  setInterval(() => {
     dataMutex.runExclusive(() => {
-      if (data == null)
-        data = JSON.parse(e.data)
-      else
-        data = jsonpatch.applyOperation(data, JSON.parse(e.data))
-
-      onUpdate(data)
+      newData = jsonpatch.deepClone(data)
+      operations = jsonpatch.compare(oldData, newData)
+      for (const op of operations) {
+        let toWrite = `data: ${JSON.stringify(op)}\n\n`
+        clientsMutex.runExclusive(() => {
+          for (const client of clients)
+            if (!client.writableEnded)
+              client.write(toWrite)
+        })
+      }
+      oldData = newData
     })
-  })
+  }, refreshInterval)
 
+  return function (req, res) {
+    res.header('Cache-Control', 'no-cache')
+    res.set('Content-Type', 'text/event-stream')
 
+    dataMutex.runExclusive(() => {
+      res.write(`data: ${JSON.stringify(oldData)}\n\n`)
+      registerClient(res)
+    })
+
+    res.socket.on('end', function () {
+      unregisterClient(res)
+    })
+
+  }
 }
 
-module.exports = {
-  SyncedServer: server,
-  SyncedClient: client
-}
+module.exports = SyncedServer
