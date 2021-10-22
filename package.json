@@ -1,6 +1,6 @@
 {
   "name": "express-sync-state",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Sync any JSON-encodeable object from your server to all clients.",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,7 @@
   "homepage": "https://github.com/F1nnM/express-sync-state#readme",
   "dependencies": {
     "async-mutex": "^0.3.2",
+    "cuid": "^2.1.8",
     "fast-json-patch": "^3.1.0"
   }
 }
