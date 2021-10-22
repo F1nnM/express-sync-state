@@ -23,7 +23,7 @@ function SyncedClient(url, onUpdate) {
         if (data == null)
             data = JSON.parse(e.data)
         else
-            data = jsonpatch.applyOperation(data, JSON.parse(e.data)).newDocument
+            data = jsonpatch.applyPatch(data, JSON.parse(e.data)).newDocument
 
         onUpdate(data)
     })
