@@ -24,7 +24,7 @@ $ npm install express-sync-state
 ```
 
 ```JavaScript
-const { SyncedCLient } = require('express-sync-state');
+const { SyncedClient } = require('express-sync-state');
 ```
 ## API
 ### `SyncedServer(object, [refreshInterval])`
