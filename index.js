@@ -35,12 +35,14 @@ function SyncedServer(data, refreshInterval = 500) {
     dataMutex.runExclusive(() => {
       newData = jsonpatch.deepClone(data)
       operations = jsonpatch.compare(oldData, newData)
-      let toWrite = `data: ${JSON.stringify(operations)}\n\n`
+      if (operations.length > 0) {
+        let toWrite = `data: ${JSON.stringify(operations)}\n\n`
         clientsMutex.runExclusive(() => {
           for (const id in clients)
             if (!clients[id].writableEnded)
               clients[id].write(toWrite)
         })
+      }
       oldData = newData
     })
   }, refreshInterval)
