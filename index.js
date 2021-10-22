@@ -1,3 +1,4 @@
+const cuid = require('cuid');
 const jsonpatch = require('fast-json-patch')
 
 var Mutex = require('async-mutex').Mutex
@@ -6,19 +7,20 @@ function SyncedServer(data, refreshInterval = 500) {
 
   // List of clients to broadcast to
   // Mutex to avoid editing the list, while it's being read.
-  var clients = [];
+  var clients = {}
   const clientsMutex = new Mutex()
 
   function registerClient(client) {
     clientsMutex.runExclusive(() => {
-      clients.push(client);
+      let id = cuid()
+      clients[id] = client
+      client.locals["syncid"] = id
     });
   }
 
   function unregisterClient(client) {
     clientsMutex.runExclusive(() => {
-      let index = clients.findIndex(client)
-      clients.splice(index, 1)
+      delete clients[client.locals["syncid"]]
     })
   }
 
@@ -36,9 +38,9 @@ function SyncedServer(data, refreshInterval = 500) {
       for (const op of operations) {
         let toWrite = `data: ${JSON.stringify(op)}\n\n`
         clientsMutex.runExclusive(() => {
-          for (const client of clients)
-            if (!client.writableEnded)
-              client.write(toWrite)
+          for (const id in clients)
+            if (!clients[id].writableEnded)
+              clients[id].write(toWrite)
         })
       }
       oldData = newData
