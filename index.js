@@ -50,6 +50,7 @@ function SyncedServer(data, refreshInterval = 500) {
   return function (req, res) {
     res.header('Cache-Control', 'no-cache')
     res.set('Content-Type', 'text/event-stream')
+    res.header('X-Accel-Buffering', 'no')
 
     dataMutex.runExclusive(() => {
       res.write(`data: ${JSON.stringify(oldData)}\n\n`)
